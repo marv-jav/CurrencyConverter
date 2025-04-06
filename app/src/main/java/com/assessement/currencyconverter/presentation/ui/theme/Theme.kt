@@ -1,4 +1,4 @@
-package com.assessement.currencyconverter.ui.theme
+package com.assessement.currencyconverter.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

@@ -1,4 +1,4 @@
-package com.assessement.currencyconverter.ui.theme
+package com.assessement.currencyconverter.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
