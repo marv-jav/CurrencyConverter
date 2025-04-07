@@ -1,13 +1,15 @@
 package com.assessement.currencyconverter.presentation.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,21 +41,35 @@ import com.assessement.currencyconverter.presentation.ui.theme.iconTint
 import com.assessement.currencyconverter.presentation.ui.theme.mainTextColor
 import com.assessement.currencyconverter.presentation.ui.theme.poppins_bold
 import com.assessement.currencyconverter.presentation.ui.theme.poppins_medium
+import com.assessement.currencyconverter.presentation.viewmodel.CurrencyConverterViewModel
 
 @Composable
-fun CurrencyScreen(modifier: Modifier = Modifier) {
-    var selectedCurrency by remember { mutableStateOf("EUR") }
+fun CurrencyScreen(modifier: Modifier = Modifier, viewModel: CurrencyConverterViewModel) {
+    val selectedCurrency1 by viewModel.selectedCurrency1.collectAsState()
+    val selectedCurrency2 by viewModel.selectedCurrency2.collectAsState()
+    val conversionResult by viewModel.conversionResult.collectAsState()
+    val historicalRatesResult by viewModel.historicalRates.collectAsState()
+
+    var amountInput by remember { mutableStateOf("") }
+
+    val startDate = "2023-01-01"
+    val endDate = "2023-12-31"
+
+    fun fetchHistoricalData() {
+        viewModel.fetchHistoricalRates(selectedCurrency1, selectedCurrency2, startDate, endDate)
+    }
 
     Column(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .fillMaxHeight()
             .background(color = Color.White)
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(35.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -60,16 +77,16 @@ fun CurrencyScreen(modifier: Modifier = Modifier) {
                 painter = painterResource(CIcons.Menu),
                 null,
                 modifier = Modifier.size(24.dp),
-                colorFilter = ColorFilter.tint(
-                    buttonColor
-                )
+                colorFilter = ColorFilter.tint(buttonColor)
             )
             Text("Sign up", fontSize = 20.sp, style = poppins_bold, color = buttonColor)
         }
         Spacer(modifier = Modifier.height(50.dp))
         Row(
             verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.height(100.dp)
+            modifier = Modifier
+                .height(100.dp)
+                .fillMaxWidth()
         ) {
             Text(
                 text = "Currency\nCalculator",
@@ -91,16 +108,17 @@ fun CurrencyScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(60.dp))
 
         CurrencyInput(
-            selectedCurrency = "EUR",
-            onAmountChange = {},
-            onCurrencyChange = {},
-            onTextChange = {})
+            selectedCurrency = selectedCurrency1,
+            onTextChange = { newAmount -> amountInput = newAmount },
+            value = amountInput,
+            isInputEnabled = true
+        )
         Spacer(modifier = Modifier.height(17.dp))
         CurrencyInput(
-            selectedCurrency = "EUR",
-            onAmountChange = {},
-            onCurrencyChange = {},
-            onTextChange = {}
+            selectedCurrency = selectedCurrency2,
+            onTextChange = {},
+            value = conversionResult?.toString() ?: "",
+            isInputEnabled = false
         )
         Spacer(modifier = Modifier.height(25.dp))
         Row(
@@ -109,19 +127,19 @@ fun CurrencyScreen(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             CurrencyDropdown(
-                selectedCurrency = selectedCurrency,
-                onCurrencySelected = { selectedCurrency = it },
-                currencyList = listOf("USD", "EUR", "JPY", "GBP", "INR"),
+                selectedCurrency = selectedCurrency1,
+                onCurrencySelected = { viewModel.setSelectedCurrency1(it) },
+                currencyList = listOf("USD", "EUR", "GBP", "JPY", "INR")
             )
             Image(
-                painter = painterResource(CIcons.Swap), null, colorFilter = ColorFilter.tint(
-                    iconTint
-                )
+                painter = painterResource(CIcons.Swap),
+                null,
+                colorFilter = ColorFilter.tint(iconTint)
             )
             CurrencyDropdown(
-                selectedCurrency = selectedCurrency,
-                onCurrencySelected = { selectedCurrency = it },
-                currencyList = listOf("USD", "EUR", "JPY", "GBP", "INR"),
+                selectedCurrency = selectedCurrency2,
+                onCurrencySelected = { viewModel.setSelectedCurrency2(it) },
+                currencyList = listOf("USD", "EUR", "GBP", "JPY", "INR")
             )
         }
         Spacer(modifier = Modifier.height(30.dp))
@@ -130,6 +148,14 @@ fun CurrencyScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(buttonColor, shape = RoundedCornerShape(6.dp))
+                .clickable {
+                    val amount = amountInput.toDoubleOrNull()
+                    Log.d("Button", "Conversion Result: $amount")
+                    if (amount != null) {
+                        viewModel.convert(amount)
+                        fetchHistoricalData()
+                    }
+                }
         ) {
             Text(
                 "Convert",
@@ -139,11 +165,13 @@ fun CurrencyScreen(modifier: Modifier = Modifier) {
                 color = Color.White
             )
         }
+        Spacer(modifier = Modifier.height(25.dp))
     }
 }
+
 
 @Preview()
 @Composable
 private fun CurrencyScreenPrev() {
-    CurrencyScreen()
+
 }

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -37,7 +36,7 @@ import com.assessement.currencyconverter.presentation.ui.theme.borderColor
 import com.assessement.currencyconverter.presentation.ui.theme.currencyTextColor
 import com.assessement.currencyconverter.presentation.ui.theme.iconTint
 import com.assessement.currencyconverter.presentation.ui.theme.poppins_semi_bold
-import com.assessement.currencyconverter.utils.getFlagEmoji
+import com.assessement.currencyconverter.utils.getFlagResourceId
 
 @Composable
 fun CurrencyDropdown(
@@ -56,15 +55,14 @@ fun CurrencyDropdown(
                 .padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Card(
+            val flagResourceId = getFlagResourceId(selectedCurrency)
+            Image(
+                painter = painterResource(id = flagResourceId),
+                contentDescription = null,
                 modifier = Modifier
-                    .background(Color.White, shape = RoundedCornerShape(100.dp))
                     .size(24.dp)
-            ) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = getFlagEmoji(selectedCurrency), fontSize = 14.sp)
-                }
-            }
+                    .background(Color.White, shape = RoundedCornerShape(100.dp))
+            )
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -92,10 +90,15 @@ fun CurrencyDropdown(
             onDismissRequest = { expanded = false }
         ) {
             currencyList.forEach { currencyCode ->
+                val flagResourceId = getFlagResourceId(currencyCode)
                 DropdownMenuItem(
                     text = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(getFlagEmoji(currencyCode))
+                            Image(
+                                painter = painterResource(id = flagResourceId),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(text = currencyCode)
                         }

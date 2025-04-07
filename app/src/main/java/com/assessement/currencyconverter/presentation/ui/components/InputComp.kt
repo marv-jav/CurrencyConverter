@@ -14,6 +14,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,16 +30,22 @@ import com.assessement.currencyconverter.presentation.ui.theme.currencyTextColor
 import com.assessement.currencyconverter.presentation.ui.theme.inputContainerColor
 import com.assessement.currencyconverter.presentation.ui.theme.inputTextColor
 import com.assessement.currencyconverter.presentation.ui.theme.poppins_bold
+import com.assessement.currencyconverter.presentation.ui.theme.poppins_semi_bold
 
 @Composable
 fun CurrencyInput(
     modifier: Modifier = Modifier,
     selectedCurrency: String = "EUR",
-    onAmountChange: (String) -> Unit = {},
-    onCurrencyChange: (String) -> Unit = {},
-    onTextChange: (String) -> Unit
+    onTextChange: (String) -> Unit = {},
+    value: String = "0.00",
+    isInputEnabled: Boolean = true
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(value) }
+
+    LaunchedEffect(value) {
+        text = value
+    }
+
     Row(
         modifier = modifier
             .background(inputContainerColor, RoundedCornerShape(6.dp))
@@ -58,25 +65,28 @@ fun CurrencyInput(
                     unfocusedIndicatorColor = inputContainerColor,
                     focusedIndicatorColor = inputContainerColor,
                     focusedTextColor = inputTextColor,
-                    unfocusedTextColor = inputTextColor
+                    unfocusedTextColor = inputTextColor,
+                    disabledContainerColor = inputContainerColor,
+                    disabledIndicatorColor = inputContainerColor
                 ),
             modifier = Modifier.weight(2f),
             placeholder = {
                 Text(
                     "Enter amount",
-                    style = poppins_bold,
+                    style = poppins_semi_bold,
                     fontSize = 18.sp,
                     color = currencyTextColor
                 )
             },
             textStyle = poppins_bold,
+            enabled = isInputEnabled
         )
         Text(
-            "EUR",
+            selectedCurrency,
             modifier = Modifier.weight(1f),
             color = currencyTextColor,
             textAlign = TextAlign.End,
-            style = poppins_bold,
+            style = poppins_semi_bold,
             fontSize = 18.sp,
         )
         Spacer(modifier = Modifier.width(20.dp))
@@ -87,12 +97,5 @@ fun CurrencyInput(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun CInputPrev() {
-    Column(
-        modifier = Modifier
-            .background(Color.White)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center
-    ) {
-        CurrencyInput(modifier = Modifier.padding(horizontal = 12.dp)) {}
-    }
+
 }

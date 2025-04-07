@@ -53,9 +53,14 @@ dependencies {
     implementation(libs.androidx.material3)
     //Added Dependencies
     implementation(libs.retrofit)
+    implementation(libs.converter.gson)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.compose.charts)
     implementation(libs.hilt.android)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.runtime.livedata)
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)
 
