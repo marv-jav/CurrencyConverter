@@ -4,26 +4,11 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,38 +21,46 @@ import androidx.compose.ui.unit.sp
 import com.assessement.currencyconverter.presentation.ui.components.CIcons
 import com.assessement.currencyconverter.presentation.ui.components.CurrencyDropdown
 import com.assessement.currencyconverter.presentation.ui.components.CurrencyInput
-import com.assessement.currencyconverter.presentation.ui.theme.buttonColor
-import com.assessement.currencyconverter.presentation.ui.theme.iconTint
-import com.assessement.currencyconverter.presentation.ui.theme.mainTextColor
-import com.assessement.currencyconverter.presentation.ui.theme.poppins_bold
-import com.assessement.currencyconverter.presentation.ui.theme.poppins_medium
+import com.assessement.currencyconverter.presentation.ui.theme.*
 import com.assessement.currencyconverter.presentation.viewmodel.CurrencyConverterViewModel
 
 @Composable
-fun CurrencyScreen(modifier: Modifier = Modifier, viewModel: CurrencyConverterViewModel) {
+fun CurrencyScreen(
+    modifier: Modifier = Modifier,
+    viewModel: CurrencyConverterViewModel
+) {
+    // State collected from ViewModel
     val selectedCurrency1 by viewModel.selectedCurrency1.collectAsState()
     val selectedCurrency2 by viewModel.selectedCurrency2.collectAsState()
     val conversionResult by viewModel.conversionResult.collectAsState()
     val historicalRatesResult by viewModel.historicalRates.collectAsState()
 
+    // User input for amount to convert
     var amountInput by remember { mutableStateOf("") }
 
+    // Placeholder fixed date range for historical data
     val startDate = "2023-01-01"
     val endDate = "2023-12-31"
 
     fun fetchHistoricalData() {
-        viewModel.fetchHistoricalRates(selectedCurrency1, selectedCurrency2, startDate, endDate)
+        viewModel.fetchHistoricalRates(
+            base = selectedCurrency1,
+            target = selectedCurrency2,
+            startDate = startDate,
+            endDate = endDate
+        )
     }
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxSize()
             .background(color = Color.White)
             .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(35.dp))
+
+        // Header row with menu icon and Sign Up text
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -75,13 +68,16 @@ fun CurrencyScreen(modifier: Modifier = Modifier, viewModel: CurrencyConverterVi
         ) {
             Image(
                 painter = painterResource(CIcons.Menu),
-                null,
+                contentDescription = null,
                 modifier = Modifier.size(24.dp),
                 colorFilter = ColorFilter.tint(buttonColor)
             )
             Text("Sign up", fontSize = 20.sp, style = poppins_bold, color = buttonColor)
         }
+
         Spacer(modifier = Modifier.height(50.dp))
+
+        // App title with visual indicator dot
         Row(
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
@@ -94,9 +90,7 @@ fun CurrencyScreen(modifier: Modifier = Modifier, viewModel: CurrencyConverterVi
                 style = poppins_bold,
                 color = mainTextColor,
             )
-
             Spacer(modifier = Modifier.width(4.dp))
-
             Box(
                 modifier = Modifier
                     .size(12.dp)
@@ -105,22 +99,29 @@ fun CurrencyScreen(modifier: Modifier = Modifier, viewModel: CurrencyConverterVi
                     .padding(bottom = 20.dp)
             )
         }
+
         Spacer(modifier = Modifier.height(60.dp))
 
+        // Currency input fields
         CurrencyInput(
             selectedCurrency = selectedCurrency1,
-            onTextChange = { newAmount -> amountInput = newAmount },
+            onTextChange = { amountInput = it },
             value = amountInput,
             isInputEnabled = true
         )
+
         Spacer(modifier = Modifier.height(17.dp))
+
         CurrencyInput(
             selectedCurrency = selectedCurrency2,
             onTextChange = {},
             value = conversionResult?.toString() ?: "",
             isInputEnabled = false
         )
+
         Spacer(modifier = Modifier.height(25.dp))
+
+        // Currency selection dropdowns with swap icon
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -133,7 +134,7 @@ fun CurrencyScreen(modifier: Modifier = Modifier, viewModel: CurrencyConverterVi
             )
             Image(
                 painter = painterResource(CIcons.Swap),
-                null,
+                contentDescription = null,
                 colorFilter = ColorFilter.tint(iconTint)
             )
             CurrencyDropdown(
@@ -142,7 +143,10 @@ fun CurrencyScreen(modifier: Modifier = Modifier, viewModel: CurrencyConverterVi
                 currencyList = listOf("USD", "EUR", "GBP", "JPY", "INR")
             )
         }
+
         Spacer(modifier = Modifier.height(30.dp))
+
+        // Convert button
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,13 +169,7 @@ fun CurrencyScreen(modifier: Modifier = Modifier, viewModel: CurrencyConverterVi
                 color = Color.White
             )
         }
+
         Spacer(modifier = Modifier.height(25.dp))
     }
-}
-
-
-@Preview()
-@Composable
-private fun CurrencyScreenPrev() {
-
 }

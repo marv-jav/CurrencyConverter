@@ -13,13 +13,20 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+/**
+ * Implementation of [CurrencyRepository] to handle currency data operations.
+ */
 class CurrencyRepositoryImpl @Inject constructor(
     private val apiService: CurrencyApiService,
     private val dao: CurrencyRateDao
 ) : CurrencyRepository {
 
+    // API key for accessing the currency API
     private val apiKey = BuildConfig.API_KEY
 
+    /**
+     * Fetches latest currency rates from API, caches them in DB, and returns the result.
+     */
     override suspend fun fetchRatesFromApi(base: String): Result<List<CurrencyRate>> {
         return try {
             val response: CurrencyRatesResponse = apiService.getLatestRates(
@@ -28,12 +35,13 @@ class CurrencyRepositoryImpl @Inject constructor(
                 symbols = "GBP,JPY,EUR, USD, INR"
             )
 
-
             if (response.success) {
+                // Convert the API response to domain model
                 val rates = response.rates.map { (target, rate) ->
                     CurrencyRate(base = base, target = target, rate = rate)
                 }
 
+                // Store the converted entities into local database
                 val currencyRateEntities = rates.map { it.toEntity() }
                 dao.insertRates(currencyRateEntities)
 
@@ -46,10 +54,16 @@ class CurrencyRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Retrieves cached currency rates from local Room database.
+     */
     override suspend fun getRatesFromDb(base: String): Flow<List<CurrencyRate>> {
         return dao.getRates(base).map { list -> list.map { it.toDomain() } }
     }
 
+    /**
+     * Fetches historical currency rates (timeseries) from the API.
+     */
     override suspend fun getHistoricalRates(
         base: String,
         target: String,
@@ -64,6 +78,8 @@ class CurrencyRepositoryImpl @Inject constructor(
                 startDate = startDate,
                 endDate = endDate
             )
+
+            // Transform the response into a list of HistoricalRatesResponse objects (one per date)
             val historicalRatesList = response.rates.map { (date, rateMap) ->
                 HistoricalRatesResponse(
                     success = response.success,
