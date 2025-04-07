@@ -4,25 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +25,14 @@ import com.assessement.currencyconverter.presentation.ui.theme.iconTint
 import com.assessement.currencyconverter.presentation.ui.theme.poppins_semi_bold
 import com.assessement.currencyconverter.utils.getFlagResourceId
 
+/**
+ * A custom dropdown component for selecting a currency.
+ *
+ * @param modifier - Optional modifier for styling.
+ * @param selectedCurrency - Currently selected currency code (e.g., "EUR").
+ * @param onCurrencySelected - Callback when a currency is selected.
+ * @param currencyList - List of currency codes to display.
+ */
 @Composable
 fun CurrencyDropdown(
     modifier: Modifier = Modifier,
@@ -55,6 +50,7 @@ fun CurrencyDropdown(
                 .padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Display selected currency's flag
             val flagResourceId = getFlagResourceId(selectedCurrency)
             Image(
                 painter = painterResource(id = flagResourceId),
@@ -66,6 +62,7 @@ fun CurrencyDropdown(
 
             Spacer(modifier = Modifier.width(12.dp))
 
+            // Display selected currency code
             Text(
                 selectedCurrency,
                 style = poppins_semi_bold,
@@ -75,6 +72,7 @@ fun CurrencyDropdown(
 
             Spacer(modifier = Modifier.width(20.dp))
 
+            // Dropdown arrow icon (clickable)
             Image(
                 painter = painterResource(R.drawable.down_arrow),
                 contentDescription = null,
@@ -85,6 +83,7 @@ fun CurrencyDropdown(
             )
         }
 
+        // Dropdown menu displaying available currency options
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -113,12 +112,18 @@ fun CurrencyDropdown(
     }
 }
 
-
+/**
+ * Preview function for the CurrencyDropdown Composable.
+ */
 @Preview(showSystemUi = true)
 @Composable
 private fun CurrencyDropdownPrev() {
     var selectedCurrency by remember { mutableStateOf("EUR") }
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center
+    ) {
         CurrencyDropdown(
             selectedCurrency = selectedCurrency,
             onCurrencySelected = { selectedCurrency = it },

@@ -11,10 +11,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Hilt module to provide Room database and DAO instances.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
+    // Provides a singleton instance of the Room database.
     @Provides
     @Singleton
     fun provideCurrencyDatabase(@ApplicationContext context: Context): CurrencyDatabase {
@@ -25,6 +29,7 @@ object DatabaseModule {
         ).build()
     }
 
+    // Provides the DAO from the database instance.
     @Provides
     fun provideCurrencyRateDao(database: CurrencyDatabase): CurrencyRateDao {
         return database.currencyRateDao()
